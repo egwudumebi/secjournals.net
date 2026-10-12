@@ -1,0 +1,84 @@
+@php
+    use App\Support\Seo\StructuredData;
+    use App\Support\Settings\SiteBranding;
+
+    try {
+        $siteName = SiteBranding::siteName();
+        $siteTagline = SiteBranding::siteTagline() ?: SiteBranding::journalFullName();
+        $parentOrgName = SiteBranding::parentOrgName();
+        $siteLogo = SiteBranding::siteLogoUrl() ?: SiteBranding::defaultLogoUrl();
+        $seoBranding = SiteBranding::publicPayload();
+    } catch (\Throwable) {
+        $siteName = (string) config('app.name', 'SEC Journals');
+        $siteTagline = (string) config('sicama.journal.full_name', 'Software Engineering Consortium Journals');
+        $parentOrgName = (string) config('sicama.parent_org.short_name', 'SEC');
+        $siteLogo = url('/images/sec-logo.png');
+        $seoBranding = [
+            'site_name' => $siteName,
+            'site_tagline' => $siteTagline,
+            'site_logo_url' => $siteLogo,
+            'journal_full_name' => $siteTagline,
+            'parent_org' => [
+                'short_name' => $parentOrgName,
+                'full_name' => (string) config('sicama.parent_org.full_name', ''),
+                'motto' => (string) config('sicama.parent_org.motto', ''),
+                'logo_url' => $siteLogo,
+            ],
+        ];
+    }
+
+    $siteDescription = trim($siteTagline.' — the official peer-reviewed journal of '.$parentOrgName.'. Advancing Communication and Media Scholarship for the Good of Society.');
+    $canonicalUrl = url()->current();
+    $logoDimensions = StructuredData::logoDimensions($siteLogo);
+    $structuredData = StructuredData::graph($seoBranding, url('/'), $siteDescription);
+@endphp
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ $siteName }} — {{ $siteTagline }}</title>
+    <meta name="description" content="{{ $siteDescription }}">
+    <meta name="keywords" content="{{ $siteName }}, {{ $parentOrgName }}, communication research, media studies, academic journal, Nigeria">
+    <meta name="author" content="{{ $siteName }}">
+    <meta name="application-name" content="{{ $siteName }}">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#0f2744">
+
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    <link rel="icon" type="{{ $logoDimensions['mime'] }}" href="{{ $siteLogo }}" sizes="{{ $logoDimensions['width'] }}x{{ $logoDimensions['height'] }}">
+    <link rel="apple-touch-icon" href="{{ $siteLogo }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:title" content="{{ $siteName }} — {{ $siteTagline }}">
+    <meta property="og:description" content="{{ $siteDescription }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    <meta property="og:locale" content="en_NG">
+    <meta property="og:image" content="{{ $siteLogo }}">
+    <meta property="og:image:secure_url" content="{{ $siteLogo }}">
+    <meta property="og:image:type" content="{{ $logoDimensions['mime'] }}">
+    <meta property="og:image:width" content="{{ $logoDimensions['width'] }}">
+    <meta property="og:image:height" content="{{ $logoDimensions['height'] }}">
+    <meta property="og:image:alt" content="{{ $siteName }} logo">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $siteName }} — {{ $siteTagline }}">
+    <meta name="twitter:description" content="{{ $siteDescription }}">
+    <meta name="twitter:image" content="{{ $siteLogo }}">
+    <meta name="twitter:image:alt" content="{{ $siteName }} logo">
+
+    <script type="application/ld+json">@json($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)</script>
+
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- JSON payload only (not executable) so production CSP script-src 'self' stays intact --}}
+    @include('partials.app-seo-data')
+</head>
+<body class="font-sans antialiased bg-white text-text-primary">
+    <div id="app"></div>
+</body>
+</html>
