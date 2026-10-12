@@ -132,22 +132,71 @@ jobs:
   deploy:
     name: Deploy (Production)
     runs-on: ubuntu-latest
-    needs: [docker]
+    needs: [test, frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to server
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, bcmath, intl, gd
+          coverage: none
+
+      - name: Install Composer dependencies (production)
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Deploy via rsync over SSH
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
-          echo "Deploy step — configure DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY secrets."
-          echo "On your server, run: ./scripts/deploy.sh production"
-          # Example SSH deploy (uncomment when secrets are configured):
-          # install -m 600 <(echo "$DEPLOY_KEY") ~/.ssh/deploy_key
-          # ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
-          #   "cd /var/www/jocrams && git pull && ./scripts/deploy.sh production"
+          set -euo pipefail
+          install -m 600 /dev/null ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" \
+            --exclude='.env' \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/framework/cache/*' \
+            --exclude='storage/framework/sessions/*' \
+            --exclude='storage/framework/views/*' \
+            --exclude='database/database.sqlite' \
+            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s <<EOF
+          set -euo pipefail
+          cd "${DEPLOY_PATH}"
+          PHP=/opt/alt/php83/usr/bin/php
+          if [[ ! -x "\$PHP" ]]; then PHP=\$(command -v php); fi
+          if [[ ! -f .env ]]; then
+            cp .env.cpanel.example .env
+            \$PHP artisan key:generate --force
+          fi
+          mkdir -p database storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
+          touch database/database.sqlite
+          chmod -R ug+rwx storage bootstrap/cache database
+          \$PHP artisan migrate --force
+          \$PHP artisan storage:link --force || true
+          \$PHP artisan config:cache
+          \$PHP artisan route:cache
+          \$PHP artisan view:cache
+          EOF

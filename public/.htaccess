@@ -1,3 +1,7 @@
+# php -- BEGIN cPanel HANDLER
+AddHandler application/x-httpd-alt-php83___lsphp .php .php8 .phtml
+# php -- END cPanel HANDLER
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
