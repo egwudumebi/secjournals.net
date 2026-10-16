@@ -2,7 +2,7 @@
 defineProps({
     text: {
         type: String,
-        default: 'Journal of Communication Research and Media Studies',
+        default: 'Software Engineering Consortium Journals',
     },
     as: {
         type: String,

@@ -170,7 +170,7 @@ function toggleFlip() {
                                 <img :src="logoUrl" alt="SEC Journals" class="size-8 object-contain" />
                             </div>
                             <div>
-                                <p class="text-lg font-bold">JOCRAMS</p>
+                                <p class="text-lg font-bold">SEC Journals</p>
                                 <p class="text-[0.65rem] uppercase tracking-[0.14em] text-blue-100">Verified member credential</p>
                             </div>
                         </div>
@@ -217,7 +217,7 @@ function toggleFlip() {
                                 <p class="mt-0.5 text-[0.5rem] font-bold uppercase leading-tight tracking-wide sm:text-[0.58rem]">
                                     {{ isSicama
                                         ? 'Scholars in Communication and Media Advancement Initiative'
-                                        : 'Journal of Communication Research and Media Studies' }}
+                                        : 'Software Engineering Consortium Journals' }}
                                 </p>
                             </div>
                         </header>

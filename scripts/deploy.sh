@@ -1,5 +1,5 @@
 #!/bin/bash
-# Jocrams zero-downtime deployment script
+# SEC Journals zero-downtime deployment script
 # Usage: ./scripts/deploy.sh [environment]
 #
 # Strategy:
@@ -31,7 +31,7 @@ $COMPOSE build app
 
 # ── Enable maintenance mode on running instance ───────────────────────────────
 log "Enabling maintenance mode..."
-$COMPOSE exec -T app php artisan down --retry=60 --secret="${DEPLOY_SECRET:-jocrams-deploy}" 2>/dev/null || true
+$COMPOSE exec -T app php artisan down --retry=60 --secret="${DEPLOY_SECRET:-secjournals-deploy}" 2>/dev/null || true
 
 # ── Start updated services ────────────────────────────────────────────────────
 log "Starting updated containers..."

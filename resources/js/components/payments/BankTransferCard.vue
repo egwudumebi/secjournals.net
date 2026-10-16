@@ -94,7 +94,7 @@ function formatFee(amount) {
             <div v-if="showBankAccount && rows.length" class="rounded-2xl border border-institutional/15 bg-institutional/[0.03] p-4 sm:p-5">
                 <p class="text-xs font-semibold uppercase tracking-wide text-institutional">Bank account details</p>
                 <p class="mt-1 text-sm text-text-secondary">
-                    Pay only to this official SICAMA account.
+                    Pay only to this official SEC account.
                 </p>
 
                 <div class="mt-4 space-y-3">

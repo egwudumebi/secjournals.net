@@ -42,37 +42,28 @@ function closeMobileNav() {
 
 <template>
     <div class="flex min-h-screen flex-col bg-white">
+        <div class="sticky top-0 z-[60]">
         <SiteBanner />
-        <header class="glass-header sticky top-0 z-50">
+        <header class="glass-header">
             <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:gap-6 sm:px-6 lg:px-8">
-                <div class="flex min-w-0 items-center gap-2 sm:gap-3">
-                    <button
-                        type="button"
-                        class="rounded-lg p-2 text-white/80 hover:bg-white/10 lg:hidden"
-                        aria-label="Open navigation menu"
-                        @click="mobileNavOpen = true"
-                    >
-                        <Bars3Icon class="size-6" />
-                    </button>
-                    <RouterLink to="/" class="group flex min-w-0 shrink-0 items-center gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-white/20 transition group-hover:bg-white/95">
-                            <img
-                                :src="branding?.parent_org?.logo_url || branding?.site_logo_url || '/images/sec-logo.png'"
-                                :alt="`${branding?.parent_org?.short_name || 'SEC'} logo`"
-                                class="size-9 object-contain p-0.5"
-                                @error="$event.target.src = '/images/sec-logo.png'"
-                            />
+                <RouterLink to="/" class="group flex min-w-0 shrink-0 items-center gap-3">
+                    <span class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-white/20 transition group-hover:bg-white/95">
+                        <img
+                            :src="branding?.parent_org?.logo_url || branding?.site_logo_url || '/images/sec-logo.png'"
+                            :alt="`${branding?.parent_org?.short_name || 'SEC'} logo`"
+                            class="size-9 object-contain p-0.5"
+                            @error="$event.target.src = '/images/sec-logo.png'"
+                        />
+                    </span>
+                    <span class="min-w-0 leading-tight">
+                        <span class="block truncate font-display text-lg font-bold tracking-tight text-white">
+                            {{ branding?.site_name || 'SEC Journals' }}
                         </span>
-                        <span class="min-w-0 leading-tight">
-                            <span class="block truncate font-display text-lg font-bold tracking-tight text-white">
-                                {{ branding?.site_name || 'SEC Journals' }}
-                            </span>
-                            <span class="hidden truncate text-[11px] text-white/70 sm:block">
-                                {{ branding?.parent_org?.short_name || 'SEC' }}
-                            </span>
+                        <span class="hidden truncate text-[11px] text-white/70 sm:block">
+                            {{ branding?.parent_org?.short_name || 'SEC' }}
                         </span>
-                    </RouterLink>
-                </div>
+                    </span>
+                </RouterLink>
 
                 <nav class="hidden flex-1 items-center justify-center gap-1 lg:flex">
                     <RouterLink
@@ -159,11 +150,20 @@ function closeMobileNav() {
                         <span class="hidden sm:inline">Join Us / Register</span>
                         <span class="sm:hidden">Join</span>
                     </RouterLink>
+                    <button
+                        type="button"
+                        class="rounded-lg p-2 text-white/80 hover:bg-white/10 lg:hidden"
+                        aria-label="Open navigation menu"
+                        @click="mobileNavOpen = true"
+                    >
+                        <Bars3Icon class="size-6" />
+                    </button>
                 </div>
             </div>
         </header>
+        </div>
 
-        <MobileNavDrawer :open="mobileNavOpen" title="Menu" panel-class="bg-institutional-dark" header-class="border-white/10" title-class="text-white" close-button-class="text-white/80 hover:bg-white/10" @close="closeMobileNav">
+        <MobileNavDrawer :open="mobileNavOpen" title="Menu" panel-class="bg-black" header-class="border-white/10" title-class="text-white" close-button-class="text-white/80 hover:bg-white/10" @close="closeMobileNav">
             <div class="space-y-1 p-4">
                 <RouterLink
                     v-for="item in nav"

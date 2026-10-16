@@ -11,7 +11,7 @@ class PublishedArticlePresenter
     public static function toArray(PublishedArticle $article, bool $includeAdmin = false): array
     {
         $journalName = SiteBranding::journalFullName()
-            ?: (string) config('sicama.journal.full_name', 'Journal of Communication Research and Media Studies');
+            ?: (string) config('sicama.journal.full_name', 'Software Engineering Consortium Journals');
         $siteName = SiteBranding::siteName() ?: 'SEC Journals';
 
         $payload = [

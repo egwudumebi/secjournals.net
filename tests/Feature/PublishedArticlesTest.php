@@ -27,6 +27,7 @@ class PublishedArticlesTest extends TestCase
 
     public function test_public_can_list_and_view_published_article_landing_pages(): void
     {
+        $this->seed(\Database\Seeders\SecConsortiumSeeder::class);
         $this->seed(CrossrefSampleArticlesSeeder::class);
 
         $this->getJson('/api/v1/public/articles')
@@ -34,7 +35,7 @@ class PublishedArticlesTest extends TestCase
             ->assertJsonPath('meta.total', 3)
             ->assertJsonPath('data.0.doi', null);
 
-        $slug = 'digital-media-literacy-and-civic-engagement-in-nigeria';
+        $slug = 'agile-devops-practices-in-nigerian-software-teams';
 
         $this->getJson("/api/v1/public/articles/{$slug}")
             ->assertOk()
@@ -84,7 +85,7 @@ class PublishedArticlesTest extends TestCase
                     'orcid' => '0000-0001-2345-6789',
                 ],
             ]),
-            'abstract' => 'An abstract for a newly published JOCRAMS article landing page.',
+            'abstract' => 'An abstract for a newly published SEC Journals article landing page.',
             'keywords' => 'communication, Africa, open access',
             'article_type' => 'Research Article',
             'received_at' => '2026-01-01',
@@ -117,7 +118,7 @@ class PublishedArticlesTest extends TestCase
             'published_at' => now()->toDateString(),
             'status' => PublishedArticleStatus::Published,
             'is_crossref_sample' => true,
-            'copyright' => '© JOCRAMS',
+            'copyright' => '© SEC Journals',
             'license' => 'CC BY 4.0',
         ]);
 

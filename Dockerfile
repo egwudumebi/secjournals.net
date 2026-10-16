@@ -1,4 +1,4 @@
-# Jocrams — Enterprise Association Management Platform
+# SEC Journals — Enterprise Association Management Platform
 # Production multi-stage Docker image
 
 # ── Stage 1: Build frontend assets ──────────────────────────────────────────
@@ -34,7 +34,7 @@ RUN composer dump-autoload --optimize --no-dev --no-scripts
 # ── Stage 3: Production runtime ─────────────────────────────────────────────
 FROM php:8.3-fpm-alpine AS app
 
-LABEL maintainer="Jocrams Platform"
+LABEL maintainer="SEC Journals"
 LABEL description="Enterprise Association Management Platform"
 
 # System dependencies

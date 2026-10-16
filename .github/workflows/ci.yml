@@ -23,13 +23,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: jocrams_test
-          POSTGRES_USER: jocrams
+          POSTGRES_DB: secjournals_test
+          POSTGRES_USER: secjournals
           POSTGRES_PASSWORD: secret
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U jocrams -d jocrams_test"
+          --health-cmd="pg_isready -U secjournals -d secjournals_test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -75,8 +75,8 @@ jobs:
             echo "DB_CONNECTION=pgsql"
             echo "DB_HOST=127.0.0.1"
             echo "DB_PORT=5432"
-            echo "DB_DATABASE=jocrams_test"
-            echo "DB_USERNAME=jocrams"
+            echo "DB_DATABASE=secjournals_test"
+            echo "DB_USERNAME=secjournals"
             echo "DB_PASSWORD=secret"
             echo "CACHE_STORE=redis"
             echo "QUEUE_CONNECTION=redis"
@@ -125,7 +125,7 @@ jobs:
         with:
           context: .
           push: false
-          tags: jocrams/app:${{ github.sha }}
+          tags: secjournals/app:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

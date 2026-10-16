@@ -29,7 +29,7 @@ class StructuredData
                 '@type' => 'Organization',
                 'name' => (string) $branding['parent_org']['full_name'],
                 'alternateName' => (string) ($branding['parent_org']['short_name'] ?? ''),
-                'url' => $origin.'/sicama',
+                'url' => $origin.'/sec',
             ];
         }
 
@@ -42,9 +42,15 @@ class StructuredData
                     '@id' => $origin.'/#website',
                     'url' => $origin,
                     'name' => $siteName,
+                    'alternateName' => ['SEC Journals', 'Software Engineering Consortium Journals'],
                     'description' => $description,
                     'publisher' => ['@id' => $origin.'/#organization'],
                     'inLanguage' => 'en-NG',
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => $origin.'/articles?search={search_term_string}',
+                        'query-input' => 'required name=search_term_string',
+                    ],
                 ],
             ],
         ];

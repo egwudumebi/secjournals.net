@@ -42,7 +42,7 @@ class PublicMemberPresenter
             $organization = 'sicama';
         }
         if ($organization === '') {
-            $organization = 'jocrams';
+            $organization = 'sec';
         }
 
         return [

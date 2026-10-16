@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PublishedArticlePdfController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SwaggerDocumentationController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,5 +16,7 @@ if (config('openapi.enabled')) {
 Route::get('/articles/{slug}/pdf', PublishedArticlePdfController::class)
     ->where('slug', '[A-Za-z0-9\-]+')
     ->name('articles.pdf');
+
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::view('/{any?}', 'app')->where('any', '.*');

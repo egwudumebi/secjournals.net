@@ -90,7 +90,7 @@ watch(() => route.params.token, (t) => {
                         Verify Credential
                     </h1>
                     <p class="mt-4 text-lg leading-relaxed text-text-secondary">
-                        Confirm the authenticity of a Jocrams membership card or certificate using its QR code or verification token.
+                        Confirm the authenticity of a SEC Journals membership card or certificate using its QR code or verification token.
                     </p>
                 </div>
             </div>
@@ -123,7 +123,7 @@ watch(() => route.params.token, (t) => {
                                     autocomplete="off"
                                     spellcheck="false"
                                     class="input font-mono !rounded-xl !border-slate-200/80 !py-3 focus:!border-institutional focus:!ring-institutional/20"
-                                    placeholder="e.g. jocrams-vrf-xxxxxxxx"
+                                    placeholder="e.g. sec-vrf-xxxxxxxx"
                                 />
 
                                 <button type="submit" class="btn-institutional mt-5 w-full sm:w-auto" :disabled="loading || ! token.trim()">

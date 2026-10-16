@@ -79,9 +79,11 @@ function isActive(name, path) {
     >
         <div class="border-b border-slate-100 px-6 py-5">
             <RouterLink to="/admin/dashboard" class="flex items-center gap-3">
-                <span class="flex size-10 items-center justify-center rounded-xl bg-institutional text-sm font-bold text-white shadow-sm">J</span>
+                <span class="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 shadow-sm">
+                    <img :src="'/images/sec-logo.png'" alt="SEC" class="size-9 object-contain p-0.5" />
+                </span>
                 <div>
-                    <p class="font-display text-lg font-bold leading-tight text-institutional-dark">Jocrams</p>
+                    <p class="font-display text-lg font-bold leading-tight text-institutional-dark">SEC Journals</p>
                     <p class="text-xs text-text-secondary">Association Admin</p>
                 </div>
             </RouterLink>

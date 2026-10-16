@@ -12,7 +12,7 @@ class ContactFormMailTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_contact_form_emails_jocrams_inbox_using_branded_mailable(): void
+    public function test_contact_form_emails_sec_inbox_using_branded_mailable(): void
     {
         Mail::fake();
 

@@ -9,7 +9,7 @@ use App\Models\MembershipTier;
 use App\Models\User;
 use App\Notifications\MembershipApprovedNotification;
 use App\Services\Admin\ActivityLogService;
-use App\Services\Credentials\CredentialGenerationService;
+use App\Services\Credentials\MembershipCredentialPackService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
 class MemberManagementService
 {
     public function __construct(
-        private readonly CredentialGenerationService $credentialService,
+        private readonly MembershipCredentialPackService $credentialPack,
         private readonly ActivityLogService $activityLog,
     ) {}
 
@@ -27,9 +27,9 @@ class MemberManagementService
     {
         return DB::transaction(function () use ($data, $admin) {
             $tier = MembershipTier::query()->findOrFail($data['membership_tier_id']);
-            $organization = strtolower((string) ($data['organization'] ?? 'jocrams'));
-            if (! in_array($organization, ['jocrams', 'sicama'], true)) {
-                $organization = 'jocrams';
+            $organization = strtolower((string) ($data['organization'] ?? 'sec'));
+            if ($organization !== 'sec') {
+                $organization = 'sec';
             }
 
             $existingUser = User::query()->where('email', $data['email'])->first();
@@ -63,7 +63,7 @@ class MemberManagementService
 
             $cardRole = trim((string) ($data['card_role'] ?? ''));
             if ($cardRole === '') {
-                $cardRole = $organization === 'sicama' ? 'Member' : 'Member';
+                $cardRole = 'Member';
             }
 
             $metadata = [
@@ -84,7 +84,10 @@ class MemberManagementService
                 'metadata' => $metadata,
             ]);
 
-            $this->credentialService->issueMembershipCard($member->fresh(['user.profile', 'tier']));
+            $this->credentialPack->issuePack(
+                $member->fresh(['user.profile', 'tier']),
+                'sec',
+            );
             $user->notify(new MembershipApprovedNotification($member->fresh('tier')));
 
             $sendReset = (bool) ($data['send_password_reset'] ?? true);
@@ -148,25 +151,17 @@ class MemberManagementService
         return $member->fresh(['user', 'tier']);
     }
 
-    private function generateMembershipNumber(string $organization = 'jocrams'): string
+    private function generateMembershipNumber(string $organization = 'sec'): string
     {
-        if ($organization === 'sicama') {
-            return $this->generateSicamaMembershipNumber();
-        }
-
-        do {
-            $number = 'MEM-'.strtoupper(Str::random(8));
-        } while (Member::query()->where('membership_number', $number)->exists());
-
-        return $number;
+        return $this->generateSecMembershipNumber();
     }
 
-    private function generateSicamaMembershipNumber(): string
+    private function generateSecMembershipNumber(): string
     {
         $year = (int) now()->format('Y');
         $nextYearShort = substr((string) ($year + 1), -2);
         $period = "{$year}-{$nextYearShort}";
-        $prefix = "SICAMA {$period}/";
+        $prefix = "SEC {$period}/";
 
         $latest = Member::query()
             ->where('membership_number', 'like', $prefix.'%')

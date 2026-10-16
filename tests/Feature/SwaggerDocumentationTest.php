@@ -23,7 +23,7 @@ class SwaggerDocumentationTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('openapi', '3.0.3')
-            ->assertJsonPath('info.title', 'Jocrams API');
+            ->assertJsonPath('info.title', 'SEC Journals API');
 
         $document = $response->json();
 

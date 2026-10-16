@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\EditorialBoardMember;
 use Illuminate\Database\Seeder;
 
-class JocramsEditorialBoardSeeder extends Seeder
+class SecEditorialBoardSeeder extends Seeder
 {
     public function run(): void
     {

@@ -41,15 +41,15 @@ class SettingsTest extends TestCase
 
         $this->postJson('/api/v1/admin/settings/general', [
             'values' => [
-                'site_name' => 'Jocrams Updated',
-                'contact_email' => 'hello@jocrams.test',
+                'site_name' => 'SEC Journals Updated',
+                'contact_email' => 'hello@secjournals.test',
             ],
         ])->assertOk();
 
         $this->assertDatabaseHas('system_settings', [
             'group_name' => 'general',
             'setting_key' => 'site_name',
-            'setting_value' => 'Jocrams Updated',
+            'setting_value' => 'SEC Journals Updated',
         ]);
     }
 
@@ -95,14 +95,14 @@ class SettingsTest extends TestCase
 
         $response = $this->postJson('/api/v1/admin/settings/user-roles', [
             'name' => 'Finance Admin',
-            'email' => 'finance@jocrams.test',
+            'email' => 'finance@secjournals.test',
             'role_slug' => 'super-admin',
         ]);
 
         $response->assertCreated()
             ->assertJsonStructure(['message', 'user_id', 'temporary_password']);
 
-        $user = User::query()->where('email', 'finance@jocrams.test')->first();
+        $user = User::query()->where('email', 'finance@secjournals.test')->first();
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('super-admin'));
     }

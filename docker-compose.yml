@@ -1,4 +1,4 @@
-# Jocrams — Local & staging Docker Compose stack
+# SEC Journals — Local & staging Docker Compose stack
 # Usage: docker compose up -d
 
 services:

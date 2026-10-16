@@ -183,7 +183,7 @@ class PublishedArticleService
     public function buildCitation(PublishedArticle $article): string
     {
         $journal = SiteBranding::journalFullName()
-            ?: (string) config('sicama.journal.full_name', 'Journal of Communication Research and Media Studies');
+            ?: (string) config('sicama.journal.full_name', 'Software Engineering Consortium Journals');
         $authors = $article->authorNames() ?: 'Author';
         $year = optional($article->published_at)?->format('Y') ?: date('Y');
         $volumeIssue = $article->volumeIssueLabel();

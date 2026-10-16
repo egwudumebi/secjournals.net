@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\CredentialType;
 use App\Enums\MemberStatus;
 use App\Enums\UserStatus;
-use App\Models\DigitalCredential;
 use App\Models\Member;
 use App\Models\MembershipTier;
 use App\Models\User;
-use App\Services\Credentials\CredentialGenerationService;
+use App\Services\Credentials\MembershipCredentialPackService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,16 +17,16 @@ class ImportSicamaMembersCommand extends Command
 {
     protected $signature = 'sicama:import-members
         {file? : Path to the SICAMA members Excel file}
-        {--sheet=ID CARD NO : Worksheet name}
+        {--sheet=ADDRESS OF MEMEBERS : Worksheet name (falls back to ID CARD NO, then first sheet)}
         {--period=2026-27 : Membership period segment used in card numbers}
         {--expires=2027-12-31 : Card/membership expiry date}
         {--dry-run : Preview without writing}
-        {--issue-cards : Issue/regenerate SICAMA membership cards}
+        {--issue-cards : Issue/regenerate SICAMA ID card, certificate, and welcome letter}
         {--send-resets : Send password reset links to newly created users}';
 
     protected $description = 'Import SICAMA members from the official ID card Excel list';
 
-    public function handle(CredentialGenerationService $credentialService): int
+    public function handle(MembershipCredentialPackService $credentialPack): int
     {
         $path = $this->argument('file')
             ?: storage_path('app/imports/sicama-members.xlsx');
@@ -39,8 +37,8 @@ class ImportSicamaMembersCommand extends Command
             return self::FAILURE;
         }
 
-        $tier = MembershipTier::query()->where('slug', 'sicama')->first()
-            ?? MembershipTier::query()->where('slug', 'full')->first()
+        $tier = MembershipTier::query()->where('slug', 'sec')->first()
+            ?? MembershipTier::query()->where('is_active', true)->orderBy('sort_order')->first()
             ?? MembershipTier::query()->orderBy('sort_order')->first();
 
         if (! $tier) {
@@ -57,14 +55,28 @@ class ImportSicamaMembersCommand extends Command
         $sendResets = (bool) $this->option('send-resets');
 
         $workbook = IOFactory::load($path);
-        $sheet = $workbook->getSheetByName($sheetName) ?? $workbook->getSheet(0);
+        $sheet = $workbook->getSheetByName($sheetName)
+            ?? $workbook->getSheetByName('ADDRESS OF MEMEBERS')
+            ?? $workbook->getSheetByName('ID CARD NO')
+            ?? $workbook->getSheet(0);
+
+        $this->info('Using worksheet: '.$sheet->getTitle());
+
+        $map = $this->detectColumnMap($sheet);
+        $this->line('Column map: '.json_encode($map));
 
         $rows = [];
         foreach ($sheet->getRowIterator(2) as $row) {
             $index = $row->getRowIndex();
-            $id = trim((string) $sheet->getCell('A'.$index)->getFormattedValue());
-            $name = trim((string) $sheet->getCell('B'.$index)->getFormattedValue());
-            $emailRaw = trim((string) $sheet->getCell('C'.$index)->getFormattedValue());
+            $id = trim((string) $sheet->getCell($map['id'].$index)->getFormattedValue());
+            $name = trim((string) $sheet->getCell($map['name'].$index)->getFormattedValue());
+            $emailRaw = trim((string) $sheet->getCell($map['email'].$index)->getFormattedValue());
+            $phone = $map['phone']
+                ? trim((string) $sheet->getCell($map['phone'].$index)->getFormattedValue())
+                : '';
+            $address = $map['address']
+                ? trim((string) $sheet->getCell($map['address'].$index)->getFormattedValue())
+                : '';
 
             if ($id === '' && $name === '') {
                 continue;
@@ -91,6 +103,8 @@ class ImportSicamaMembersCommand extends Command
                 'name' => $this->normalizeName($name),
                 'email' => strtolower($email),
                 'alt_emails' => array_slice($emails, 1),
+                'phone' => $this->normalizePhone($phone),
+                'address' => $address !== '' ? $address : null,
                 'membership_number' => $membershipNumber,
                 'card_role' => $this->resolveCardRole($name),
             ];
@@ -123,6 +137,7 @@ class ImportSicamaMembersCommand extends Command
                     $user = User::query()->create([
                         'name' => $row['name'],
                         'email' => $row['email'],
+                        'phone' => $row['phone'] ?: null,
                         'password' => Str::random(40),
                         'status' => UserStatus::Active,
                         'email_verified_at' => now(),
@@ -131,11 +146,22 @@ class ImportSicamaMembersCommand extends Command
                     $isNewUser = true;
                     $created++;
                 } else {
-                    $user->update([
+                    $user->fill([
                         'name' => $row['name'],
                         'status' => UserStatus::Active,
                         'email_verified_at' => $user->email_verified_at ?? now(),
                     ]);
+                    if (! empty($row['phone'])) {
+                        $user->phone = $row['phone'];
+                    }
+                    $user->save();
+                }
+
+                if (! empty($row['address'])) {
+                    $user->profile()->updateOrCreate(
+                        ['user_id' => $user->uuid],
+                        ['street' => $row['address']],
+                    );
                 }
 
                 $member = $user->member;
@@ -145,6 +171,7 @@ class ImportSicamaMembersCommand extends Command
                     'sicama_card_no' => $row['card_no'],
                     'imported_from' => 'sicama-members.xlsx',
                     'alt_emails' => $row['alt_emails'],
+                    'institutional_address' => $row['address'],
                 ]);
 
                 if ($member) {
@@ -191,16 +218,7 @@ class ImportSicamaMembersCommand extends Command
                 }
 
                 if ($issueCards) {
-                    DigitalCredential::query()
-                        ->where('member_id', $member->id)
-                        ->where('type', CredentialType::MembershipCard)
-                        ->whereNull('revoked_at')
-                        ->update([
-                            'revoked_at' => now(),
-                            'revocation_reason' => 'Replaced by SICAMA membership card import',
-                        ]);
-
-                    $credentialService->issueMembershipCard($member->fresh(['user.profile', 'tier']));
+                    $credentialPack->issuePack($member->fresh(['user.profile', 'tier']), 'sec', deliverEmail: false);
                     $cards++;
                 }
 
@@ -215,6 +233,71 @@ class ImportSicamaMembersCommand extends Command
         $this->info("Cards issued: {$cards}");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Detect column letters for both sheet layouts:
+     * - ADDRESS OF MEMEBERS: Name | Email | ID CARD NO | Phone | Address | ...
+     * - ID CARD NO: ID CARD NO | Name | Email
+     *
+     * @return array{id: string, name: string, email: string, phone: ?string, address: ?string}
+     */
+    private function detectColumnMap(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): array
+    {
+        $headers = [];
+        foreach (range('A', 'F') as $col) {
+            $headers[$col] = Str::lower(trim((string) $sheet->getCell($col.'1')->getFormattedValue()));
+        }
+
+        $joined = implode(' ', array_values($headers));
+
+        // Full address sheet
+        if (str_contains($joined, 'name') && str_contains($joined, 'id card') && str_contains($joined, 'email')) {
+            $idCol = collect($headers)->search(fn (string $h) => str_contains($h, 'id card')) ?: 'C';
+            $nameCol = collect($headers)->search(fn (string $h) => $h === 'name' || str_starts_with($h, 'name')) ?: 'A';
+            $emailCol = collect($headers)->search(fn (string $h) => str_contains($h, 'email')) ?: 'B';
+            $phoneCol = collect($headers)->search(fn (string $h) => str_contains($h, 'phone')) ?: null;
+            $addressCol = collect($headers)->search(fn (string $h) => str_contains($h, 'address') || str_contains($h, 'institution')) ?: null;
+
+            return [
+                'id' => (string) $idCol,
+                'name' => (string) $nameCol,
+                'email' => (string) $emailCol,
+                'phone' => $phoneCol ? (string) $phoneCol : null,
+                'address' => $addressCol ? (string) $addressCol : null,
+            ];
+        }
+
+        // Compact ID CARD NO sheet (A=id, B=name, C=email)
+        return [
+            'id' => 'A',
+            'name' => 'B',
+            'email' => 'C',
+            'phone' => null,
+            'address' => null,
+        ];
+    }
+
+    private function normalizePhone(string $phone): ?string
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?: '';
+        if ($digits === '') {
+            return null;
+        }
+
+        if (str_starts_with($digits, '234') && strlen($digits) >= 13) {
+            return '+'.$digits;
+        }
+
+        if (strlen($digits) === 10 && str_starts_with($digits, '0') === false) {
+            return '+234'.$digits;
+        }
+
+        if (strlen($digits) === 11 && str_starts_with($digits, '0')) {
+            return '+234'.substr($digits, 1);
+        }
+
+        return $phone;
     }
 
     /** @return list<string> */

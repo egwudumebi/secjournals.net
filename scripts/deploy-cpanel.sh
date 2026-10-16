@@ -10,7 +10,7 @@ if command -v /opt/alt/php83/usr/bin/php >/dev/null 2>&1; then
     PHP="/opt/alt/php83/usr/bin/php"
 fi
 
-echo "==> JOCRAMS cPanel setup ($ROOT)"
+echo "==> SEC Journals cPanel setup ($ROOT)"
 echo "    PHP: $($PHP -v | head -1)"
 
 if [[ ! -f .env ]]; then
@@ -39,5 +39,5 @@ echo ""
 echo "Done. Ensure your domain document root points to:"
 echo "  $ROOT/public"
 echo ""
-echo "In cPanel: Domains → jocrams.com → Document Root → set to the path above."
-echo "Then visit https://jocrams.com/up to verify Laravel is running."
+echo "In cPanel: Domains → secjournals.net → Document Root → set to the path above."
+echo "Then visit https://secjournals.net/up to verify Laravel is running."

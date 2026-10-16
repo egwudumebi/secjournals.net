@@ -50,7 +50,10 @@ return [
     ],
 
     'fees' => [
-        'membership_registration' => 20000,
+        // Flat SEC membership: ₦10,000 registration + ₦15,000 annual dues (shown as detail in UI).
+        'membership_registration' => 25000,
+        'membership_registration_component' => 10000,
+        'membership_annual_dues_component' => 15000,
         'manuscript_review' => 10000,
         'peer_review_processing' => 5000,
         'turnitin_check' => 5000,

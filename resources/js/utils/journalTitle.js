@@ -1,4 +1,4 @@
-const JOURNAL_TITLE = 'Journal of Communication Research and Media Studies';
+const JOURNAL_TITLE = 'Software Engineering Consortium Journals';
 
 /**
  * Escape HTML, then wrap the journal full title in <em> for display.

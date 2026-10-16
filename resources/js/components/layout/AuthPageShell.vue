@@ -1,7 +1,8 @@
 <script setup>
+import { onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
-import { BuildingOffice2Icon } from '@heroicons/vue/24/outline';
 import SiteFooter from './SiteFooter.vue';
+import { useSiteBranding } from '../../composables/useSiteBranding';
 
 defineProps({
     title: {
@@ -17,6 +18,9 @@ defineProps({
         default: () => [],
     },
 });
+
+const { branding, loadBranding } = useSiteBranding();
+onMounted(() => loadBranding());
 </script>
 
 <template>
@@ -24,10 +28,17 @@ defineProps({
         <header class="border-b border-slate-200/80 bg-white">
             <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
                 <RouterLink to="/" class="group flex items-center gap-2.5">
-                    <span class="flex size-10 items-center justify-center rounded-xl bg-institutional/10 ring-1 ring-institutional/10 transition group-hover:bg-institutional/15">
-                        <BuildingOffice2Icon class="size-5 text-institutional" aria-hidden="true" />
+                    <span class="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
+                        <img
+                            :src="branding?.site_logo_url || branding?.parent_org?.logo_url || '/images/sec-logo.png'"
+                            alt="SEC logo"
+                            class="size-9 object-contain p-0.5"
+                            @error="$event.target.src = '/images/sec-logo.png'"
+                        />
                     </span>
-                    <span class="font-display text-lg font-bold text-institutional-dark">Jocrams</span>
+                    <span class="font-display text-lg font-bold text-institutional-dark">
+                        {{ branding?.site_name || 'SEC Journals' }}
+                    </span>
                 </RouterLink>
                 <RouterLink to="/" class="text-sm font-medium text-institutional transition hover:text-institutional-dark">
                     ← Back to website
@@ -36,13 +47,13 @@ defineProps({
         </header>
 
         <div class="flex flex-1 flex-col lg:flex-row">
-            <aside class="relative hidden overflow-hidden bg-gradient-to-br from-institutional-dark via-institutional to-[#0c4a8c] lg:flex lg:w-[42%] xl:w-[45%]">
-                <div class="pointer-events-none absolute inset-0 opacity-30" aria-hidden="true">
-                    <div class="absolute -right-20 -top-20 size-72 rounded-full bg-accent-gold/20 blur-3xl" />
-                    <div class="absolute -bottom-24 -left-16 size-64 rounded-full bg-white/10 blur-3xl" />
+            <aside class="relative hidden overflow-hidden bg-gradient-to-br from-black via-institutional to-[#2a2a32] lg:flex lg:w-[42%] xl:w-[45%]">
+                <div class="pointer-events-none absolute inset-0 opacity-40" aria-hidden="true">
+                    <div class="absolute -right-20 -top-20 size-72 rounded-full bg-accent-gold/30 blur-3xl" />
+                    <div class="absolute -bottom-24 -left-16 size-64 rounded-full bg-white/5 blur-3xl" />
                 </div>
                 <div class="relative flex flex-col justify-center px-10 py-16 xl:px-16">
-                    <p class="label-caps text-accent-gold/90">Member Portal</p>
+                    <p class="label-caps text-white/70">Member Portal</p>
                     <h1 class="mt-4 font-display text-3xl font-bold leading-tight text-white xl:text-4xl">
                         {{ title }}
                     </h1>

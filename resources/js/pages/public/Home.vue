@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import {
     ArrowDownTrayIcon,
@@ -32,9 +32,26 @@ const events = ref([]);
 const downloads = ref([]);
 const editorialBoard = ref([]);
 const featuredBoard = ref([]);
+const activeMemberCount = ref(null);
 const loadingNews = ref(true);
 const loadingEvents = ref(true);
 const loadingDownloads = ref(true);
+
+const formattedMemberCount = computed(() => {
+    if (activeMemberCount.value == null || activeMemberCount.value < 1) {
+        return null;
+    }
+
+    return activeMemberCount.value.toLocaleString('en-US');
+});
+
+const membershipCtaCopy = computed(() => {
+    if (formattedMemberCount.value) {
+        return `Join ${formattedMemberCount.value} active members — including SEC professionals — with access to digital credentials, exclusive resources, and event privileges.`;
+    }
+
+    return 'Join our growing community of SEC professionals with access to digital credentials, exclusive resources, and event privileges.';
+});
 
 const benefits = [
     { icon: IdentificationIcon, title: 'Digital Membership ID', description: 'Instant digital card with QR verification.' },
@@ -76,12 +93,13 @@ onMounted(async () => {
         await Promise.all([loadBranding(), loadOrgInfo()]);
         heroSlides.value = resolveHeroSlides({ branding: branding.value });
 
-        const [newsRes, eventsRes, downloadsRes, callsRes, boardRes] = await Promise.all([
+        const [newsRes, eventsRes, downloadsRes, callsRes, boardRes, membersRes] = await Promise.all([
             api.get('/news', { params: { per_page: 3 } }),
             api.get('/events'),
             api.get('/downloads'),
             api.get('/journal/calls/open').catch(() => ({ data: { data: [] } })),
             journalClient.get('/editorial-board').catch(() => ({ data: { data: [] } })),
+            api.get('/members', { params: { per_page: 1 } }).catch(() => ({ data: { meta: { total: 0 } } })),
         ]);
 
         news.value = newsRes.data.data.slice(0, 3);
@@ -89,6 +107,7 @@ onMounted(async () => {
         downloads.value = downloadsRes.data.data.slice(0, 4);
         editorialBoard.value = boardRes.data.data || [];
         featuredBoard.value = editorialBoard.value.slice(0, 6);
+        activeMemberCount.value = Number(membersRes.data?.meta?.total) || 0;
 
         heroSlides.value = resolveHeroSlides({
             calls: callsRes.data.data || [],
@@ -424,7 +443,7 @@ onMounted(async () => {
                 <div v-else class="mt-12 grid auto-rows-fr gap-5 sm:grid-cols-2">
                     <ScrollReveal v-for="(item, index) in downloads" :key="item.uuid" :delay="index * 80">
                         <div class="group hover-lift card-modern flex h-full items-center gap-5 p-5 sm:p-6">
-                            <span class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-50 to-orange-50 text-red-600 ring-1 ring-red-100">
+                            <span class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-50 to-slate-50 text-institutional ring-1 ring-brand-100">
                                 <DocumentTextIcon class="size-7" aria-hidden="true" />
                             </span>
                             <div class="min-w-0 flex-1">
@@ -444,9 +463,9 @@ onMounted(async () => {
         </section>
 
         <!-- Membership CTA -->
-        <section class="relative overflow-hidden bg-gradient-to-br from-institutional-dark via-institutional to-[#0c4a8c] section-padding">
-            <div class="pointer-events-none absolute inset-0 opacity-30" aria-hidden="true">
-                <div class="absolute -right-24 -top-24 size-96 rounded-full bg-accent-gold/20 blur-3xl" />
+        <section class="relative overflow-hidden bg-gradient-to-br from-black via-institutional to-[#2a2a32] section-padding">
+            <div class="pointer-events-none absolute inset-0 opacity-40" aria-hidden="true">
+                <div class="absolute -right-24 -top-24 size-96 rounded-full bg-accent-gold/25 blur-3xl" />
                 <div class="absolute -bottom-32 -left-24 size-80 rounded-full bg-white/10 blur-3xl" />
             </div>
 
@@ -455,8 +474,15 @@ onMounted(async () => {
                     <div class="mx-auto max-w-2xl text-center">
                         <p class="label-caps text-accent-gold/90">Membership</p>
                         <h2 class="mt-3 font-display text-3xl font-bold text-white sm:text-4xl">Unlock Exclusive Member Benefits</h2>
+                        <p
+                            v-if="formattedMemberCount"
+                            class="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm font-medium text-white"
+                        >
+                            <UsersIcon class="size-4 text-accent-gold" aria-hidden="true" />
+                            {{ formattedMemberCount }} active members
+                        </p>
                         <p class="mt-4 text-base leading-relaxed text-slate-300">
-                            Join thousands of professionals with access to digital credentials, exclusive resources, and event privileges.
+                            {{ membershipCtaCopy }}
                         </p>
                     </div>
                 </ScrollReveal>

@@ -73,6 +73,7 @@ use App\Http\Controllers\Api\V1\Journal\AddEditorialCommentController;
 use App\Http\Controllers\Api\V1\Journal\AssignReviewerController;
 use App\Http\Controllers\Api\V1\Journal\BrowseJournalsController;
 use App\Http\Controllers\Api\V1\Journal\CreateReviewerController;
+use App\Http\Controllers\Api\V1\Journal\RemoveReviewerController;
 use App\Http\Controllers\Api\V1\Journal\DownloadJournalDocumentController;
 use App\Http\Controllers\Api\V1\Journal\ListAllJournalSubmissionsController;
 use App\Http\Controllers\Api\V1\Journal\ListEditorialCommentsController;
@@ -457,6 +458,7 @@ Route::prefix('v1')->group(function (): void {
             Route::get('queue', ListReviewerQueueController::class)->middleware('journal.ability:journal.review');
             Route::post('admin/reviewers', CreateReviewerController::class)->middleware('journal.ability:journal.assign');
             Route::get('admin/reviewers', ListReviewersController::class)->middleware('journal.ability:journal.assign');
+            Route::delete('admin/reviewers/{reviewerId}', RemoveReviewerController::class)->middleware('journal.ability:journal.assign');
             Route::get('admin/calls-for-papers', [JournalCallForPapersController::class, 'index'])->middleware('journal.ability:journal.assign');
             Route::post('admin/calls-for-papers', [JournalCallForPapersController::class, 'store'])->middleware('journal.ability:journal.assign');
             Route::get('admin/calls-for-papers/{callForPaper:uuid}', [JournalCallForPapersController::class, 'show'])->middleware('journal.ability:journal.assign');

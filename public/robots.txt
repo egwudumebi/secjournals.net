@@ -1,2 +1,11 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /member/dashboard
+Disallow: /member/applications
+Disallow: /member/payments
+Disallow: /member/credentials
+Disallow: /member/profile
+Disallow: /api/
+
+Sitemap: https://secjournals.net/sitemap.xml

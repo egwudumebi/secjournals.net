@@ -30,10 +30,26 @@ class DashboardService
     /** @return array<string, mixed> */
     private function legacyStats(): array
     {
+        $membersActive = Member::query()->where('status', 'active')->count();
+        $membersAssociation = Member::query()
+            ->where('status', 'active')
+            ->where(function ($query): void {
+                $query->where('membership_number', 'like', 'SEC %')
+                    ->orWhere('membership_number', 'like', 'SEC%')
+                    ->orWhere(function ($q): void {
+                        $q->where('metadata->organization', 'sec')
+                            ->where('membership_number', 'not like', 'MEM-%');
+                    });
+            })
+            ->count();
+
         return [
             'members' => [
                 'total' => Member::query()->count(),
-                'active' => Member::query()->where('status', 'active')->count(),
+                'active' => $membersActive,
+                'association_active' => $membersAssociation,
+                'platform_active' => max(0, $membersActive - $membersAssociation),
+                'association_label' => 'SEC',
                 'expiring_soon' => Member::query()
                     ->where('status', 'active')
                     ->whereBetween('expires_at', [now(), now()->addDays(30)])
@@ -61,6 +77,17 @@ class DashboardService
     private function metrics(): array
     {
         $activeMembers = Member::query()->where('status', 'active')->count();
+        $associationActive = Member::query()
+            ->where('status', 'active')
+            ->where(function ($query): void {
+                $query->where('membership_number', 'like', 'SEC %')
+                    ->orWhere('membership_number', 'like', 'SEC%')
+                    ->orWhere(function ($q): void {
+                        $q->where('metadata->organization', 'sec')
+                            ->where('membership_number', 'not like', 'MEM-%');
+                    });
+            })
+            ->count();
         $newApplicationsThisMonth = MembershipApplication::query()
             ->where('created_at', '>=', now()->startOfMonth())
             ->count();
@@ -84,6 +111,9 @@ class DashboardService
         return [
             'active_members' => [
                 'value' => $activeMembers,
+                'association_active' => $associationActive,
+                'platform_active' => max(0, $activeMembers - $associationActive),
+                'association_label' => 'SEC',
                 'change_percent' => $this->percentChange($membersLastMonth, $membersThisMonth),
             ],
             'new_applications_month' => [

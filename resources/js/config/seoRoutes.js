@@ -7,7 +7,7 @@ import {
 
 function brandingDefaults(branding = {}) {
     const siteName = branding.site_name || 'SEC Journals';
-    const tagline = branding.site_tagline || 'Journal of Communication Research and Media Studies';
+    const tagline = branding.site_tagline || 'Software Engineering Consortium Journals';
     const journalName = branding.journal_full_name || tagline;
     const parentOrg = branding.parent_org?.short_name || 'SEC';
     const origin = window.location.origin;

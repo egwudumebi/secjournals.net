@@ -14,8 +14,8 @@ class SicamaSeeder extends Seeder
 
         $settings = [
             ['group_name' => 'general', 'setting_key' => 'site_name', 'setting_value' => 'SEC Journals', 'is_secret' => false],
-            ['group_name' => 'general', 'setting_key' => 'site_tagline', 'setting_value' => 'Journal of Communication Research and Media Studies', 'is_secret' => false],
-            ['group_name' => 'general', 'setting_key' => 'journal_full_name', 'setting_value' => 'Journal of Communication Research and Media Studies', 'is_secret' => false],
+            ['group_name' => 'general', 'setting_key' => 'site_tagline', 'setting_value' => 'Software Engineering Consortium Journals', 'is_secret' => false],
+            ['group_name' => 'general', 'setting_key' => 'journal_full_name', 'setting_value' => 'Software Engineering Consortium Journals', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'parent_org_name', 'setting_value' => 'SEC', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'parent_org_full_name', 'setting_value' => 'Scholars in Communication and Media Advancement Initiative', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'parent_org_motto', 'setting_value' => 'Advancing Communication and Media Scholarship for the good of the society.', 'is_secret' => false],
@@ -38,6 +38,6 @@ class SicamaSeeder extends Seeder
             );
         }
 
-        // Production Editor listing removed per client instruction (handled in JocramsEditorialBoardSeeder).
+        // Production Editor listing removed per client instruction (handled in SEC JournalsEditorialBoardSeeder).
     }
 }

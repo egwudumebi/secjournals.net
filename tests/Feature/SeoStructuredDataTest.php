@@ -14,7 +14,7 @@ class SeoStructuredDataTest extends TestCase
         $response->assertSee('<script type="application/ld+json">', false);
         $response->assertSee('"@type":"Organization"', false);
         $response->assertSee('"@type":"ImageObject"', false);
-        $response->assertSee('images/sicama-logo.png', false);
+        $response->assertSee('images/sec-logo-square.png', false);
         $response->assertSee('rel="icon"', false);
         $response->assertSee('rel="apple-touch-icon"', false);
         $response->assertSee('property="og:image:width"', false);

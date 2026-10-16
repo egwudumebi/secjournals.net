@@ -25,6 +25,7 @@ import FormFieldLabel from '../../components/admin/FormFieldLabel.vue';
 import { useAuth } from '../../composables/useAuth';
 import { publicApi } from '../../api/client';
 import { extractApiError } from '../../utils/apiError';
+import { downloadAdminExport, messageFromBlobError } from '../../utils/download';
 import { confirmAction, notifyError, notifySuccess } from '../../utils/swal';
 
 const { getAdminClient } = useAuth();
@@ -35,6 +36,7 @@ const search = ref('');
 const statusFilter = ref('all');
 const loading = ref(true);
 const saving = ref(false);
+const exporting = ref(false);
 const drawerOpen = ref(false);
 const message = ref('');
 const error = ref('');
@@ -54,16 +56,10 @@ const form = ref(emptyForm());
 
 const orgOptions = [
     {
-        id: 'sicama',
+        id: 'sec',
         label: 'SEC',
-        description: 'Association member with the official SICAMA ID card.',
+        description: 'Association member with the official SEC ID card.',
         badge: 'Teal card',
-    },
-    {
-        id: 'jocrams',
-        label: 'SEC Journals',
-        description: 'Journal / platform member with the JOCRAMS credential.',
-        badge: 'Blue card',
     },
 ];
 
@@ -113,7 +109,7 @@ async function loadTiers() {
         const { data } = await publicApi().get('/membership-tiers');
         tiers.value = data.data || [];
         if (tiers.value.length && !form.value.membership_tier_id) {
-            const preferred = tiers.value.find((tier) => tier.slug === 'sicama') || tiers.value[0];
+            const preferred = tiers.value.find((tier) => tier.slug === 'sec') || tiers.value[0];
             form.value.membership_tier_id = preferred.id;
         }
     } catch {
@@ -150,6 +146,33 @@ async function load(resetPage = false) {
     }
 }
 
+async function exportMembersCsv() {
+    exporting.value = true;
+    message.value = '';
+    error.value = '';
+
+    try {
+        const params = new URLSearchParams({ format: 'csv' });
+        if (search.value.trim()) {
+            params.set('search', search.value.trim());
+        }
+        if (statusFilter.value !== 'all') {
+            params.set('status', statusFilter.value);
+        }
+
+        await downloadAdminExport(
+            getAdminClient(),
+            `/exports/members?${params.toString()}`,
+            `members-${new Date().toISOString().slice(0, 10)}.csv`,
+        );
+        message.value = 'Members CSV downloaded.';
+    } catch (e) {
+        error.value = await messageFromBlobError(e, 'Unable to export members. Please try again.');
+    } finally {
+        exporting.value = false;
+    }
+}
+
 function goToPage(nextPage) {
     if (nextPage < 1 || nextPage > meta.value.last_page || nextPage === page.value) {
         return;
@@ -169,7 +192,7 @@ watch(statusFilter, () => load(true));
 function openDrawer() {
     form.value = {
         ...emptyForm(),
-        membership_tier_id: tiers.value.find((tier) => tier.slug === 'sicama')?.id
+        membership_tier_id: tiers.value.find((tier) => tier.slug === 'sec')?.id
             || tiers.value[0]?.id
             || '',
     };
@@ -191,16 +214,14 @@ const selectedTier = computed(() => tiers.value.find(
     (tier) => String(tier.id) === String(form.value.membership_tier_id),
 ));
 
-const isSicama = computed(() => form.value.organization === 'sicama');
+const isSicama = computed(() => form.value.organization === 'sec');
 
 const pageSicamaCount = computed(() => members.value.filter((m) =>
     String(m.membership_number || '').startsWith('SEC')
-    || m.metadata?.organization === 'sicama',
+    || m.metadata?.organization === 'sec',
 ).length);
 
-const previewNumber = computed(() => (
-    isSicama.value ? 'SICAMA 2026-27/XXXX' : 'MEM-XXXXXXXX'
-));
+const previewNumber = computed(() => 'SEC 2026-27/XXXX');
 
 function formatDate(value) {
     return value ? new Date(value).toLocaleDateString(undefined, {
@@ -221,10 +242,13 @@ function statusClass(status) {
 }
 
 function orgLabel(member) {
-    if (String(member.membership_number || '').startsWith('SEC') || member.metadata?.organization === 'sicama') {
+    if (String(member.membership_number || '').startsWith('SEC') || member.metadata?.organization === 'sec') {
         return 'SEC';
     }
-    return 'SEC Journals';
+    if (String(member.membership_number || '').startsWith('MEM-')) {
+        return 'Pending payment';
+    }
+    return 'SEC';
 }
 
 async function addMember() {
@@ -333,7 +357,7 @@ function fieldError(key) {
                 </p>
             </div>
             <div class="rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-white p-4 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-wider text-cyan-800">SICAMA on page</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-cyan-800">SEC on page</p>
                 <p class="mt-1 font-display text-2xl font-bold text-cyan-950">{{ pageSicamaCount }}</p>
                 <p class="mt-1 text-sm text-cyan-800/80">Association credentials</p>
             </div>
@@ -370,12 +394,14 @@ function fieldError(key) {
                     <UserPlusIcon class="size-4" />
                     Create member
                 </button>
-                <a
-                    :href="`/api/v1/admin/exports/members?format=csv&search=${encodeURIComponent(search)}`"
-                    class="btn-secondary w-full !rounded-xl text-center sm:w-auto"
+                <button
+                    type="button"
+                    class="btn-secondary inline-flex w-full items-center justify-center gap-2 !rounded-xl sm:w-auto"
+                    :disabled="exporting"
+                    @click="exportMembersCsv"
                 >
-                    Export CSV
-                </a>
+                    {{ exporting ? 'Preparing…' : 'Export CSV' }}
+                </button>
             </template>
         </AdminToolbar>
 
@@ -596,7 +622,7 @@ function fieldError(key) {
                                         :class="form.organization === org.id
                                             ? 'border-[#156082] bg-[#156082]/5 ring-2 ring-[#156082]/25'
                                             : 'border-slate-200 hover:border-slate-300'"
-                                        @click="form.organization = org.id; if (org.id === 'sicama' && !form.card_role) form.card_role = 'Member'"
+                                        @click="form.organization = org.id; if (org.id === 'sec' && !form.card_role) form.card_role = 'Member'"
                                     >
                                         <div class="flex items-center justify-between gap-2">
                                             <span class="font-semibold text-slate-900">{{ org.label }}</span>
@@ -688,7 +714,7 @@ function fieldError(key) {
 
                                 <div class="grid gap-4 sm:grid-cols-2">
                                     <div v-if="isSicama" class="form-field">
-                                        <FormFieldLabel label="Card role" help="Printed on the SICAMA ID card." />
+                                        <FormFieldLabel label="Card role" help="Printed on the SEC ID card." />
                                         <select v-model="form.card_role" class="select-modern">
                                             <option v-for="role in cardRoleOptions" :key="role" :value="role">
                                                 {{ role }}

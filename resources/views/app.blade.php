@@ -12,7 +12,7 @@
         $siteName = (string) config('app.name', 'SEC Journals');
         $siteTagline = (string) config('sicama.journal.full_name', 'Software Engineering Consortium Journals');
         $parentOrgName = (string) config('sicama.parent_org.short_name', 'SEC');
-        $siteLogo = url('/images/sec-logo.png');
+        $siteLogo = url('/images/sec-logo-square.png');
         $seoBranding = [
             'site_name' => $siteName,
             'site_tagline' => $siteTagline,
@@ -27,10 +27,22 @@
         ];
     }
 
-    $siteDescription = trim($siteTagline.' — the official peer-reviewed journal of '.$parentOrgName.'. Advancing Communication and Media Scholarship for the Good of Society.');
-    $canonicalUrl = url()->current();
+    // Prefer square logo for search engines / OG when available.
+    if (is_file(public_path('images/sec-logo-square.png'))) {
+        $siteLogo = url('/images/sec-logo-square.png');
+        $seoBranding['site_logo_url'] = $siteLogo;
+        if (isset($seoBranding['parent_org']) && is_array($seoBranding['parent_org'])) {
+            $seoBranding['parent_org']['logo_url'] = $siteLogo;
+        }
+    }
+
+    $siteDescription = trim($siteName.' — peer-reviewed journals of the '.$parentOrgName.'. Fusion of Academia and Industry for productivity and advancement of society.');
+    $canonicalUrl = rtrim((string) config('app.url'), '/').request()->getPathInfo();
+    if ($canonicalUrl === rtrim((string) config('app.url'), '/')) {
+        $canonicalUrl = rtrim((string) config('app.url'), '/').'/';
+    }
     $logoDimensions = StructuredData::logoDimensions($siteLogo);
-    $structuredData = StructuredData::graph($seoBranding, url('/'), $siteDescription);
+    $structuredData = StructuredData::graph($seoBranding, rtrim((string) config('app.url'), '/'), $siteDescription);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -41,15 +53,21 @@
 
     <title>{{ $siteName }} — {{ $siteTagline }}</title>
     <meta name="description" content="{{ $siteDescription }}">
-    <meta name="keywords" content="{{ $siteName }}, {{ $parentOrgName }}, communication research, media studies, academic journal, Nigeria">
+    <meta name="keywords" content="{{ $siteName }}, {{ $parentOrgName }}, Software Engineering Consortium, software engineering journal, artificial intelligence, electrical engineering, academic journal Nigeria">
     <meta name="author" content="{{ $siteName }}">
     <meta name="application-name" content="{{ $siteName }}">
-    <meta name="robots" content="index,follow">
-    <meta name="theme-color" content="#0f2744">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="googlebot" content="index,follow">
+    <meta name="theme-color" content="#121212">
+    <meta name="msapplication-TileColor" content="#121212">
+    <meta name="msapplication-TileImage" content="{{ url('/images/sec-logo.png') }}">
 
     <link rel="canonical" href="{{ $canonicalUrl }}">
-    <link rel="icon" type="{{ $logoDimensions['mime'] }}" href="{{ $siteLogo }}" sizes="{{ $logoDimensions['width'] }}x{{ $logoDimensions['height'] }}">
-    <link rel="apple-touch-icon" href="{{ $siteLogo }}">
+    <link rel="icon" href="{{ url('/favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" href="{{ url('/images/sec-logo-512.png') }}" sizes="512x512">
+    <link rel="apple-touch-icon" href="{{ url('/apple-touch-icon.png') }}">
+    <link rel="shortcut icon" href="{{ url('/favicon.ico') }}">
+    <link rel="manifest" href="{{ url('/site.webmanifest') }}">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $siteName }}">
@@ -78,7 +96,7 @@
     {{-- JSON payload only (not executable) so production CSP script-src 'self' stays intact --}}
     @include('partials.app-seo-data')
 </head>
-<body class="font-sans antialiased bg-white text-text-primary">
+<body class="font-sans antialiased bg-surface-muted text-text-primary">
     <div id="app"></div>
 </body>
 </html>

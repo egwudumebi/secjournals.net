@@ -19,6 +19,14 @@ class PublicMemberQueryService
                 $query->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             })
+            // Exclude applicants still awaiting first dues payment.
+            ->where(function (Builder $query): void {
+                $query->whereNull('metadata->awaiting_membership_payment')
+                    ->orWhere('metadata->awaiting_membership_payment', false)
+                    ->orWhere('metadata->awaiting_membership_payment', 0)
+                    ->orWhere('metadata->awaiting_membership_payment', 'false')
+                    ->orWhere('metadata->awaiting_membership_payment', '0');
+            })
             ->latest('joined_at');
     }
 

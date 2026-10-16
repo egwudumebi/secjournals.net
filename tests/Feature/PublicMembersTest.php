@@ -31,14 +31,16 @@ class PublicMembersTest extends TestCase
         $tier = MembershipTier::query()->first();
         $activeUser = User::factory()->create(['name' => 'Active Member']);
         $suspendedUser = User::factory()->create(['name' => 'Suspended Member']);
+        $unpaidUser = User::factory()->create(['name' => 'Unpaid Applicant']);
 
         $active = Member::query()->create([
             'user_id' => $activeUser->id,
             'membership_tier_id' => $tier->id,
-            'membership_number' => 'MEM-ACTIVE01',
+            'membership_number' => 'SEC 2026-27/0100',
             'status' => MemberStatus::Active,
             'joined_at' => now()->subMonth(),
             'expires_at' => now()->addYear(),
+            'metadata' => ['organization' => 'sec'],
         ]);
 
         Member::query()->create([
@@ -48,6 +50,16 @@ class PublicMembersTest extends TestCase
             'status' => MemberStatus::Suspended,
             'joined_at' => now()->subMonth(),
             'expires_at' => now()->addYear(),
+        ]);
+
+        Member::query()->create([
+            'user_id' => $unpaidUser->id,
+            'membership_tier_id' => $tier->id,
+            'membership_number' => 'MEM-UNPAID01',
+            'status' => MemberStatus::Active,
+            'joined_at' => now(),
+            'expires_at' => null,
+            'metadata' => ['organization' => 'sec', 'awaiting_membership_payment' => true],
         ]);
 
         $response = $this->getJson('/api/v1/public/members');
@@ -67,7 +79,7 @@ class PublicMembersTest extends TestCase
         Member::query()->create([
             'user_id' => User::factory()->create(['name' => 'Ada Okonkwo'])->id,
             'membership_tier_id' => $tier->id,
-            'membership_number' => 'SICAMA 2026-27/0001',
+            'membership_number' => 'SEC 2026-27/0001',
             'status' => MemberStatus::Active,
             'joined_at' => now(),
             'expires_at' => now()->addYear(),
@@ -76,7 +88,7 @@ class PublicMembersTest extends TestCase
         Member::query()->create([
             'user_id' => User::factory()->create(['name' => 'Chinedu Bassey'])->id,
             'membership_tier_id' => $tier->id,
-            'membership_number' => 'SICAMA 2026-27/0099',
+            'membership_number' => 'SEC 2026-27/0099',
             'status' => MemberStatus::Active,
             'joined_at' => now(),
             'expires_at' => now()->addYear(),
@@ -88,10 +100,10 @@ class PublicMembersTest extends TestCase
             ->assertJsonPath('data.0.name', 'Chinedu Bassey')
             ->assertJsonPath('meta.total', 1);
 
-        $this->getJson('/api/v1/public/members?search=SICAMA 2026-27/0001')
+        $this->getJson('/api/v1/public/members?search=SEC 2026-27/0001')
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.membership_number', 'SICAMA 2026-27/0001');
+            ->assertJsonPath('data.0.membership_number', 'SEC 2026-27/0001');
     }
 
     public function test_public_member_detail_hides_email(): void

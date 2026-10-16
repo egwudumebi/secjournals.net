@@ -15,7 +15,7 @@ const members = ref([]);
 const loading = ref(true);
 
 const eicMessage = computed(() => journal.value?.editor_in_chief_message || null);
-const journalFullName = computed(() => branding.value?.journal_full_name || branding.value?.site_tagline || 'Journal of Communication Research and Media Studies');
+const journalFullName = computed(() => branding.value?.journal_full_name || branding.value?.site_tagline || 'Software Engineering Consortium Journals');
 
 const groupedMembers = computed(() => {
     const groups = new Map();

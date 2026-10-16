@@ -37,7 +37,7 @@ function blankForm() {
         page_start: '',
         page_end: '',
         citation: '',
-        copyright: '© JOCRAMS / Scholars in Communication and Media Advancement Initiative (SICAMA).',
+        copyright: '© Software Engineering Consortium Journals.',
         license: 'Creative Commons Attribution 4.0 International (CC BY 4.0)',
         doi: '',
         status: 'published',

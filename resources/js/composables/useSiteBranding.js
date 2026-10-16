@@ -8,13 +8,13 @@ let sicamaPromise = null;
 
 const defaults = {
     site_name: 'SEC Journals',
-    site_tagline: 'Journal of Communication Research and Media Studies',
+    site_tagline: 'Software Engineering Consortium Journals',
     site_logo_url: '/images/sec-logo.png',
-    journal_full_name: 'Journal of Communication Research and Media Studies',
+    journal_full_name: 'Software Engineering Consortium Journals',
     parent_org: {
         short_name: 'SEC',
-        full_name: 'Scholars in Communication and Media Advancement Initiative',
-        motto: 'Advancing Communication and Media Scholarship for the good of the society.',
+        full_name: 'Software Engineering Consortium',
+        motto: 'Fusion of Academia and Industry to provide resources for productivity and advancement of the society.',
         logo_url: '/images/sec-logo.png',
     },
 };
@@ -64,7 +64,7 @@ export function useSiteBranding() {
 
         if (!sicamaPromise) {
             sicamaPromise = publicApi()
-                .get('/sicama')
+                .get('/sec')
                 .then(({ data }) => {
                     sicama.value = data.data;
                     return sicama.value;

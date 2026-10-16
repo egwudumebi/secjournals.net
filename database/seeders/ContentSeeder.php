@@ -30,11 +30,11 @@ class ContentSeeder extends Seeder
         );
 
         NewsArticle::query()->firstOrCreate(
-            ['slug' => 'welcome-to-jocrams'],
+            ['slug' => 'welcome-to-sec-journals'],
             [
                 'author_id' => $admin->id,
                 'category_id' => $newsCategory->id,
-                'title' => 'Welcome to Jocrams Association Platform',
+                'title' => 'Welcome to SEC Journals Association Platform',
                 'excerpt' => 'Our new digital platform is now live for members and the public.',
                 'body' => '<p>We are excited to launch our enterprise association management platform. Members can now apply online, manage dues, and access digital credentials.</p>',
                 'status' => 'published',

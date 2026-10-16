@@ -3,8 +3,8 @@
 return [
     'enabled' => env('SWAGGER_DOCS_ENABLED', true),
 
-    'title' => env('SWAGGER_TITLE', 'Jocrams API'),
-    'description' => env('SWAGGER_DESCRIPTION', 'Interactive OpenAPI documentation for the Jocrams API.'),
+    'title' => env('SWAGGER_TITLE', 'SEC Journals API'),
+    'description' => env('SWAGGER_DESCRIPTION', 'Interactive OpenAPI documentation for the SEC Journals API.'),
     'version' => env('SWAGGER_VERSION', '1.0.0'),
 
     'docs_path' => env('SWAGGER_DOCS_PATH', 'docs'),

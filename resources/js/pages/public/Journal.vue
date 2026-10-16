@@ -24,7 +24,7 @@ const publishTypes = computed(() => journal.value?.what_we_publish || []);
 const whyPublish = computed(() => journal.value?.why_publish || []);
 const eicMessage = computed(() => journal.value?.editor_in_chief_message || null);
 const eicParagraphs = computed(() => paragraphs(eicMessage.value?.body));
-const journalFullName = computed(() => branding.value?.journal_full_name || branding.value?.site_tagline || 'Journal of Communication Research and Media Studies');
+const journalFullName = computed(() => branding.value?.journal_full_name || branding.value?.site_tagline || 'Software Engineering Consortium Journals');
 
 onMounted(async () => {
     await Promise.all([loadBranding(), loadOrgInfo()]);

@@ -38,7 +38,7 @@ onMounted(async () => {
                     Categories
                 </RouterLink>
                 <RouterLink v-if="canJournalAssign()" to="/admin/journal/reviewers" class="btn-secondary w-full !rounded-xl text-center sm:w-auto">
-                    Manage reviewers
+                    Peer reviewers
                 </RouterLink>
             </template>
         </AdminPageIntro>

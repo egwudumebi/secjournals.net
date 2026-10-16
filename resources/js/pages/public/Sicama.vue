@@ -180,7 +180,7 @@ onMounted(async () => {
                     <div class="flex-1">
                         <h2 class="font-display text-2xl font-bold text-institutional-dark">Explore the journal</h2>
                         <p class="mt-2 max-w-2xl text-text-secondary">
-                            Read published articles, meet the editorial team, and submit manuscripts to JOCRAMS.
+                            Read published articles, meet the editorial team, and submit manuscripts to SEC Journals.
                         </p>
                     </div>
                     <div class="flex flex-wrap justify-center gap-3">

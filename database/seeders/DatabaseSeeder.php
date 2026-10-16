@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             SecConsortiumSeeder::class,
             FeeCatalogSeeder::class,
+            CrossrefSampleArticlesSeeder::class,
         ]);
     }
 }

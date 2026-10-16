@@ -26,7 +26,7 @@ defineProps({
                     <span class="flex size-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10 transition group-hover:bg-white/15">
                         <BuildingOffice2Icon class="size-5 text-accent-gold" aria-hidden="true" />
                     </span>
-                    <span class="font-display text-lg font-bold text-white">Jocrams</span>
+                    <span class="font-display text-lg font-bold text-white">SEC Journals</span>
                 </RouterLink>
                 <RouterLink to="/" class="text-sm font-medium text-slate-300 transition hover:text-white">
                     ← Back to website
@@ -35,10 +35,10 @@ defineProps({
         </header>
 
         <div class="flex flex-1 flex-col lg:flex-row">
-            <aside class="relative hidden overflow-hidden bg-gradient-to-br from-slate-950 via-institutional-dark to-institutional lg:flex lg:w-[42%] xl:w-[45%]">
+            <aside class="relative hidden overflow-hidden bg-gradient-to-br from-black via-institutional-dark to-institutional lg:flex lg:w-[42%] xl:w-[45%]">
                 <div class="pointer-events-none absolute inset-0 opacity-40" aria-hidden="true">
-                    <div class="absolute -right-16 -top-16 size-80 rounded-full bg-accent-gold/15 blur-3xl" />
-                    <div class="absolute -bottom-20 left-0 size-72 rounded-full bg-institutional/30 blur-3xl" />
+                    <div class="absolute -right-16 -top-16 size-80 rounded-full bg-accent-gold/25 blur-3xl" />
+                    <div class="absolute -bottom-20 left-0 size-72 rounded-full bg-white/5 blur-3xl" />
                     <div
                         class="absolute inset-0 opacity-[0.07]"
                         style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 24px 24px;"

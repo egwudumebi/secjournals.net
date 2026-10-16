@@ -278,11 +278,11 @@ async function markResolved() {
                 <ul class="mt-5 space-y-4 text-sm text-slate-600">
                     <li class="flex items-center gap-2">
                         <EnvelopeIcon class="size-5 text-institutional" />
-                        info@jocrams.test
+                        info@secjournals.net
                     </li>
                     <li class="flex items-center gap-2">
                         <PhoneIcon class="size-5 text-institutional" />
-                        +234 800 JOCRAMS
+                        +234-8035410260
                     </li>
                 </ul>
             </section>

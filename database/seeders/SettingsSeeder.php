@@ -24,8 +24,8 @@ class SettingsSeeder extends Seeder
             ['group_name' => 'general', 'setting_key' => 'parent_org_name', 'setting_value' => 'SEC', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'parent_org_full_name', 'setting_value' => 'Software Engineering Consortium', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'parent_org_motto', 'setting_value' => 'Fusion of Academia and Industry to provide resources for productivity and advancement of the society.', 'is_secret' => false],
-            ['group_name' => 'general', 'setting_key' => 'parent_org_logo_path', 'setting_value' => 'branding/sec-logo.png', 'is_secret' => false],
-            ['group_name' => 'general', 'setting_key' => 'site_logo_path', 'setting_value' => 'branding/sec-logo.png', 'is_secret' => false],
+            ['group_name' => 'general', 'setting_key' => 'parent_org_logo_path', 'setting_value' => 'branding/sec-logo-square.png', 'is_secret' => false],
+            ['group_name' => 'general', 'setting_key' => 'site_logo_path', 'setting_value' => 'branding/sec-logo-square.png', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'contact_email', 'setting_value' => 'info@secjournals.net', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'support_email', 'setting_value' => 'info@secjournals.net', 'is_secret' => false],
             ['group_name' => 'general', 'setting_key' => 'social_facebook', 'setting_value' => '', 'is_secret' => false],
@@ -50,8 +50,8 @@ class SettingsSeeder extends Seeder
             ['group_name' => 'notifications', 'setting_key' => 'system_updates', 'setting_value' => '0', 'is_secret' => false],
 
             ['group_name' => 'membership', 'setting_key' => 'auto_approval', 'setting_value' => '0', 'is_secret' => false],
-            ['group_name' => 'membership', 'setting_key' => 'fee_student_ngn', 'setting_value' => '20000', 'is_secret' => false],
-            ['group_name' => 'membership', 'setting_key' => 'fee_professional_ngn', 'setting_value' => '20000', 'is_secret' => false],
+            ['group_name' => 'membership', 'setting_key' => 'fee_student_ngn', 'setting_value' => '25000', 'is_secret' => false],
+            ['group_name' => 'membership', 'setting_key' => 'fee_professional_ngn', 'setting_value' => '25000', 'is_secret' => false],
             ['group_name' => 'membership', 'setting_key' => 'fee_institutional_ngn', 'setting_value' => '150000', 'is_secret' => false],
             ['group_name' => 'membership', 'setting_key' => 'duration_months', 'setting_value' => '12', 'is_secret' => false],
             ['group_name' => 'membership', 'setting_key' => 'renewal_reminder_days', 'setting_value' => '30', 'is_secret' => false],
@@ -103,5 +103,10 @@ class SettingsSeeder extends Seeder
 
         Storage::disk('public')->makeDirectory('branding');
         Storage::disk('public')->put('branding/sec-logo.png', File::get($source));
+
+        $square = public_path('images/sec-logo-square.png');
+        if (File::exists($square)) {
+            Storage::disk('public')->put('branding/sec-logo-square.png', File::get($square));
+        }
     }
 }

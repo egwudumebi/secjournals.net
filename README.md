@@ -1,6 +1,6 @@
 # SEC Journals
 
-Software Engineering Consortium (SEC) multi-journal platform — full product parity with the JOCRAMS association system, rebranded and extended for five SEC journals.
+Software Engineering Consortium (SEC) multi-journal platform — full product parity with the SEC Journals association system, rebranded and extended for five SEC journals.
 
 ## Stack
 

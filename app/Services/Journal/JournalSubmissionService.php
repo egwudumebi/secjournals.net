@@ -2,6 +2,7 @@
 
 namespace App\Services\Journal;
 
+use App\Enums\JournalSubmissionStatus;
 use App\Models\JournalCallForPapers;
 use App\Models\JournalSubmission;
 use App\Models\User;
@@ -104,11 +105,11 @@ class JournalSubmissionService
 
     public function finalizePaidSubmission(JournalSubmission $submission): void
     {
-        if ($submission->status !== 'payment_pending') {
+        if ($submission->status !== JournalSubmissionStatus::PaymentPending) {
             return;
         }
 
-        $submission->update(['status' => 'submitted']);
+        $submission->update(['status' => JournalSubmissionStatus::Submitted]);
 
         $this->repository->addTimelineEvent(
             timelineId: (string) Str::uuid(),

@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <div class="label">JOCRAMS · Journal of Communication Research and Media Studies</div>
+    <div class="label">SEC Journals · Software Engineering Consortium</div>
     <h1>{{ $article->title }}</h1>
     <div class="meta">
         <div><strong>Authors:</strong> {{ $article->authorNames() }}</div>
@@ -32,8 +32,8 @@
     <div class="box">
         <p><strong>Sample full-text PDF for Crossref landing-page review.</strong></p>
         <p>
-            This document demonstrates that each JOCRAMS article has a unique landing page
-            with a separate full-text PDF link. When JOCRAMS registers DOIs with Crossref,
+            This document demonstrates that each SEC Journals article has a unique landing page
+            with a separate full-text PDF link. When SEC registers DOIs with Crossref,
             each DOI will resolve to the article landing page (not directly to this PDF).
         </p>
         <p>Permanent landing page path: {{ $article->landingPath() }}</p>

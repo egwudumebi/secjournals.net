@@ -9,48 +9,20 @@ class MembershipTierSeeder extends Seeder
 {
     public function run(): void
     {
-        // Client-documented membership registration fee: ₦20,000 (JOCRAMS INFO / flyer).
-        $registrationFee = (float) config('jocrams.fees.membership_registration', 20000);
+        // Flat SEC association membership: ₦25,000 (₦10k registration + ₦15k annual dues).
+        $registrationFee = (float) config('sec.fees.membership_registration', 25000);
 
         MembershipTier::query()->updateOrCreate(
-            ['slug' => 'associate'],
+            ['slug' => 'sec'],
             [
-                'name' => 'Associate Member',
-                'description' => 'Entry-level membership. Registration fee aligned with SICAMA/JOCRAMS published rate.',
-                'annual_dues' => $registrationFee,
-                'currency' => 'NGN',
-                'benefits' => ['Newsletter', 'Event discounts', 'Member portal access'],
-                'sort_order' => 1,
-                'is_active' => true,
-                'min_documents_required' => 1,
-                'requires_approval' => true,
-            ],
-        );
-
-        MembershipTier::query()->updateOrCreate(
-            ['slug' => 'full'],
-            [
-                'name' => 'Full Member',
-                'description' => 'Full membership with all benefits. Registration fee aligned with SICAMA/JOCRAMS published rate.',
-                'annual_dues' => $registrationFee,
-                'currency' => 'NGN',
-                'benefits' => ['Newsletter', 'Event discounts', 'Digital library', 'Voting rights', 'Member portal access'],
-                'sort_order' => 2,
-                'is_active' => true,
-                'min_documents_required' => 2,
-                'requires_approval' => true,
-            ],
-        );
-
-        MembershipTier::query()->updateOrCreate(
-            ['slug' => 'sicama'],
-            [
-                'name' => 'SICAMA Member',
-                'description' => 'Official SICAMA association membership with dedicated SICAMA ID card.',
+                'name' => 'SEC Member',
+                'description' => 'Official SEC association membership. Includes ID card, certificate, and welcome letter after payment.',
                 'annual_dues' => $registrationFee,
                 'currency' => 'NGN',
                 'benefits' => [
-                    'SICAMA membership ID card',
+                    'SEC membership ID card',
+                    'Membership certificate',
+                    'Official welcome letter',
                     'Association directory listing',
                     'Member portal access',
                     'Event privileges',
@@ -61,5 +33,27 @@ class MembershipTierSeeder extends Seeder
                 'requires_approval' => false,
             ],
         );
+
+        // Legacy tiers — retired from public signup (journal access is separate).
+        foreach ([
+            'full' => 'Full Member',
+            'associate' => 'Associate Member',
+            'sicama' => 'SICAMA Member',
+        ] as $slug => $name) {
+            MembershipTier::query()->updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $name,
+                    'description' => 'Legacy tier (retired). Use SEC Member.',
+                    'annual_dues' => $registrationFee,
+                    'currency' => 'NGN',
+                    'benefits' => ['Member portal access'],
+                    'sort_order' => 10,
+                    'is_active' => false,
+                    'min_documents_required' => 0,
+                    'requires_approval' => true,
+                ],
+            );
+        }
     }
 }

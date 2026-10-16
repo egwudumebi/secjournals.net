@@ -25,7 +25,7 @@ const DEFAULT_PHONES = [
     '+234 703 067 3913',
 ];
 
-const officeEmail = computed(() => contact.value?.email || 'info@secjournals.net');
+const officeEmail = computed(() => contact.value?.email || 'jocrams2026@gmail.com');
 const officePhones = computed(() => {
     const phones = contact.value?.phones;
     return Array.isArray(phones) && phones.length ? phones : DEFAULT_PHONES;
@@ -79,7 +79,7 @@ onMounted(() => {
                         Contact Us
                     </h1>
                     <p class="mt-4 text-lg leading-relaxed text-text-secondary">
-                        Reach the SEC Journals office for membership, submissions, and general inquiries.
+                        Reach the SEC editorial office for membership, submissions, and general inquiries.
                     </p>
                 </div>
             </div>
@@ -226,7 +226,7 @@ onMounted(() => {
                                     <div class="rounded-2xl border border-amber-100 bg-amber-50/80 p-4">
                                         <p class="text-xs font-semibold uppercase tracking-wide text-amber-800">Membership registration</p>
                                         <p class="mt-1 font-display text-2xl font-bold text-institutional-dark">
-                                            ₦{{ Number(fees?.membership_registration || 20000).toLocaleString() }}
+                                            ₦{{ Number(fees?.membership_registration || 25000).toLocaleString() }}
                                         </p>
                                     </div>
                                     <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">

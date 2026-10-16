@@ -7,8 +7,8 @@ use App\Models\SystemSetting;
 class ContactInbox
 {
     /**
-     * Official JOCRAMS contact inbox from client docs / config.
-     * Prefer admin settings when set; otherwise config('jocrams.email').
+     * Official SEC Journals contact inbox from client docs / config.
+     * Prefer admin settings when set; otherwise config('sec.site.email').
      */
     public static function email(): string
     {
@@ -21,6 +21,6 @@ class ContactInbox
             return trim($fromSettings);
         }
 
-        return (string) config('jocrams.email', 'info@secjournals.net');
+        return (string) config('sec.site.email', 'info@secjournals.net');
     }
 }

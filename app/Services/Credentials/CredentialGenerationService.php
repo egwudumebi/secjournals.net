@@ -20,14 +20,27 @@ class CredentialGenerationService
     public function issueMembershipCard(Member $member): DigitalCredential
     {
         $templateKey = $member->membershipCardTemplateKey();
-        $title = $member->isSicamaMember() ? 'SICAMA Membership Card' : 'Membership Card';
+        $title = $member->isSecMember() ? 'SEC Membership Card' : 'Membership Card';
 
         return $this->issue($member, CredentialType::MembershipCard, $title, $templateKey);
     }
 
-    public function issueCertificate(Member $member, string $title, string $templateKey = 'certificate'): DigitalCredential
+    public function issueCertificate(Member $member, string $title, ?string $templateKey = null): DigitalCredential
     {
+        $templateKey ??= $member->isSecMember()
+            ? 'sec_certificate'
+            : 'certificate';
+
         return $this->issue($member, CredentialType::Certificate, $title, $templateKey);
+    }
+
+    public function issueWelcomeLetter(Member $member, string $templateKey = 'welcome_letter'): DigitalCredential
+    {
+        $title = $member->isSecMember()
+            ? 'SEC Official Welcome Letter'
+            : 'Official Welcome Letter';
+
+        return $this->issue($member, CredentialType::WelcomeLetter, $title, $templateKey);
     }
 
     public function issue(Member $member, CredentialType $type, string $title, string $templateKey): DigitalCredential
@@ -172,9 +185,11 @@ class CredentialGenerationService
         ?\DateTimeInterface $expiresAt,
     ): array {
         $logoDataUri = SiteBranding::logoDataUri()
+            ?? CardAsset::publicImageDataUri('images/sec-logo.png')
             ?? CardAsset::publicImageDataUri('images/sicama-logo.png');
 
         $validUntil = $expiresAt ?? $member->expires_at;
+        $role = $member->cardRoleTitle() ?: 'Member';
 
         return [
             'member' => $member,
@@ -183,15 +198,23 @@ class CredentialGenerationService
             'publicVerifyUrl' => $publicVerifyUrl,
             'qrImage' => $qrImage,
             'qrMime' => $qrMime,
-            'siteName' => $member->isSicamaMember() ? 'SEC' : SiteBranding::siteName(),
+            'siteName' => $member->isSecMember() ? 'SEC' : SiteBranding::siteName(),
             'logoDataUri' => $logoDataUri,
             'profileImageDataUri' => ProfileImageUrl::dataUriForUser($member->user),
             'issuedAt' => $issuedAt,
             'expiresAt' => $expiresAt,
-            'cardRoleTitle' => $member->cardRoleTitle(),
+            'cardRoleTitle' => $role,
+            'certificateRole' => $role,
             'validUntilLabel' => $validUntil
                 ? CardAsset::ordinalDayMonthYear($validUntil)
                 : 'No expiry date',
+            'certificateDatedLabel' => CardAsset::datedThisDayLabel($issuedAt),
+            'membershipPeriodLabel' => CardAsset::membershipPeriodLabel($issuedAt, $validUntil),
+            'certificateBadgeNumberHtml' => CardAsset::certificateBadgeNumberHtml(
+                (string) $member->membership_number
+            ),
+            'certificateBgDataUri' => CardAsset::publicImageDataUri('images/credentials/sec-certificate-bg.jpg')
+                ?? CardAsset::publicImageDataUri('images/credentials/sicama-certificate-bg.jpg'),
             'chairmanSignatureDataUri' => CardAsset::publicImageDataUri('images/signatures/bot-chairman.png'),
             'presidentSignatureDataUri' => CardAsset::publicImageDataUri('images/signatures/president.png'),
         ];
@@ -202,9 +225,14 @@ class CredentialGenerationService
     {
         $pdf = Pdf::loadView('credentials.'.$templateKey, $viewData);
 
-        if ($templateKey === 'sicama_membership_card') {
+        if (in_array($templateKey, ['sicama_membership_card', 'sec_membership_card'], true)) {
             // Match the physical SICAMA card PDF page size (pts).
             $pdf->setPaper([0.0, 0.0, 242.64, 152.52], 'portrait');
+        }
+
+        if (in_array($templateKey, ['sicama_certificate', 'sec_certificate'], true)) {
+            // Official SICAMA certificate is landscape letter-like (864×612 pt).
+            $pdf->setPaper([0.0, 0.0, 864.0, 612.0], 'landscape');
         }
 
         return $pdf;

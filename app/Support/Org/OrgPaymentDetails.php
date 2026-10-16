@@ -22,7 +22,7 @@ class OrgPaymentDetails
 
     /** @var list<string> */
     private const PLACEHOLDER_ACCOUNT_NAMES = [
-        'jocrams association',
+        'sec association',
         'association account',
         'placeholder',
     ];
@@ -30,18 +30,18 @@ class OrgPaymentDetails
     /** @return array<string, mixed> */
     public static function publicPayload(): array
     {
-        $bank = config('jocrams.bank', []);
-        $social = config('jocrams.social', []);
+        $bank = config('sec.bank', []);
+        $social = config('sec.social', []);
 
         return [
             'bank' => [
                 'bank_name' => self::resolvedBankField('bank_name', $bank['bank_name'] ?? null),
                 'account_name' => self::resolvedBankField('account_name', $bank['account_name'] ?? null),
                 'account_number' => self::resolvedBankField('account_number', $bank['account_number'] ?? null),
-                'evidence_email' => $bank['evidence_email'] ?? config('jocrams.email'),
+                'evidence_email' => $bank['evidence_email'] ?? config('sec.site.email'),
                 'payment_contacts' => $bank['payment_contacts'] ?? [],
             ],
-            'fees' => config('jocrams.fees', []),
+            'fees' => config('sec.fees', []),
             'social' => [
                 'facebook' => self::setting('social_facebook') ?: ($social['facebook'] ?? ''),
                 'linkedin' => self::setting('social_linkedin') ?: ($social['linkedin'] ?? ''),
@@ -50,10 +50,10 @@ class OrgPaymentDetails
                 'youtube' => self::setting('social_youtube') ?: ($social['youtube'] ?? ''),
             ],
             'contact' => [
-                'email' => config('jocrams.email'),
-                'phones' => config('jocrams.phones', []),
-                'website' => config('jocrams.website'),
-                'address' => config('jocrams.address', []),
+                'email' => config('sec.site.email'),
+                'phones' => config('sec.phones', []),
+                'website' => config('sec.site.website'),
+                'address' => config('sec.address', []),
             ],
             'payment_mode' => 'bank_transfer',
             'payment_mode_label' => 'Direct bank transfer (admin approval)',

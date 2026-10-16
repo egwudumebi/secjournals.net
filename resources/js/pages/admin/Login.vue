@@ -96,7 +96,7 @@ async function submit() {
             </form>
 
             <p class="mt-6 rounded-xl border border-amber-100 bg-amber-50/80 px-4 py-3 text-center text-xs leading-relaxed text-amber-900">
-                This area is restricted to authorized Jocrams staff. Member accounts should use
+                This area is restricted to authorized SEC Journals staff. Member accounts should use
                 <RouterLink to="/member/login" class="font-semibold text-institutional hover:underline">
                     member login
                 </RouterLink>.
